@@ -4,17 +4,149 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Roda a Roda CIEE</title>
-  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: 'Trebuchet MS', sans-serif;
+      text-align: center;
+      background-color: #002b36;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      color: gold;
+      text-shadow: 2px 2px 5px black;
+      margin-top: 20px;
+    }
+
+    #configuracao {
+      margin-top: 50px;
+    }
+
+    .grupo-input {
+      margin: 5px;
+      padding: 10px;
+    }
+
+    #placar {
+      position: fixed;
+      top: 50%;
+      left: 10px;
+      transform: translateY(-50%);
+      background: rgba(0, 0, 0, 0.7);
+      border: 2px solid gold;
+      border-radius: 10px;
+      padding: 10px;
+      text-align: left;
+      z-index: 5;
+    }
+
+    #placar h3 {
+      margin: 0 0 10px;
+      color: gold;
+    }
+
+    .painel {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 20px auto;
+      max-width: 90%;
+    }
+
+    .letra {
+      width: 50px;
+      height: 50px;
+      margin: 5px;
+      background: #001f4d;
+      border: 3px solid gold;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      text-transform: uppercase;
+      color: white;
+      box-shadow: 0 0 10px #000;
+    }
+
+    #roleta-container {
+      position: relative;
+      margin: 30px auto;
+      width: 300px;
+      height: 300px;
+    }
+
+    #ponteiro {
+      width: 0;
+      height: 0;
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-bottom: 25px solid red;
+      position: absolute;
+      top: -25px;
+      left: calc(50% - 15px);
+      z-index: 10;
+    }
+
+    button {
+      margin: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background: gold;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      color: black;
+      font-weight: bold;
+      box-shadow: 0 0 5px black;
+    }
+
+    input[type="text"] {
+      margin: 5px;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 2px solid gold;
+    }
+
+    #letrasUsadas, #pontos, #pista, #grupoAtual {
+      font-size: 20px;
+      margin: 15px;
+    }
+
+    #pontos {
+      color: gold;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    #entrada-letras {
+      display: none;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    #final {
+      display: none;
+      background-color: #001f4d;
+      padding: 30px;
+      border-radius: 10px;
+      margin-top: 50px;
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <h1>Roda a Roda CIEE</h1>
-  </header>
-
-  <!-- Configuração do jogo (Inscrição dos grupos) -->
-  <section id="configuracao">
+  <h1>Roda a Roda CIEE</h1>
+  <div id="configuracao">
     <h3>Insira os nomes dos grupos (até 6):</h3>
-    <div class="input-grupos">
+    <div>
       <input class="grupo-input" id="grupo1" placeholder="Grupo 1" />
       <input class="grupo-input" id="grupo2" placeholder="Grupo 2" />
       <input class="grupo-input" id="grupo3" placeholder="Grupo 3" />
@@ -22,41 +154,185 @@
       <input class="grupo-input" id="grupo5" placeholder="Grupo 5" />
       <input class="grupo-input" id="grupo6" placeholder="Grupo 6" />
     </div>
-    <button id="iniciar-jogo">Iniciar Jogo</button>
-  </section>
+    <button onclick="iniciarJogo()">Iniciar Jogo</button>
+  </div>
 
-  <!-- Jogo em si -->
-  <section id="jogo" style="display: none;">
+  <div id="jogo" style="display: none;">
     <div id="placar">
       <h3>Placar</h3>
       <div id="placarGrupos"></div>
     </div>
-
-    <div id="painel"></div>
+    <div class="painel" id="painel"></div>
     <div id="pista"></div>
     <div id="grupoAtual"></div>
-
     <div id="roleta-container">
       <div id="ponteiro"></div>
       <canvas id="canvas" width="300" height="300"></canvas>
     </div>
-
-    <button id="girar-roleta">Girar Roleta</button>
-
-    <div class="adivinhar">
+    <button onclick="girarRoleta()">Girar Roleta</button>
+    <div id="entrada-letras">
       <input type="text" id="letra" maxlength="1" placeholder="Digite uma letra" />
-      <button id="adivinhar-letra">Adivinhar Letra</button>
-      <button id="adivinhar-palavra">Adivinhar Palavra</button>
+      <button onclick="adivinharLetra()">Adivinhar Letra</button>
       <input type="text" id="palpite" placeholder="Palpite da palavra" />
+      <button onclick="adivinharPalavra()">Adivinhar Palavra</button>
     </div>
-
     <div id="letrasUsadas">Letras usadas: </div>
     <div id="pontos">Pontos: 0</div>
-  </section>
+  </div>
 
-  <!-- Som da Roleta -->
+  <div id="final">
+    <h2>Jogo Encerrado!</h2>
+    <div id="vencedor"></div>
+    <button onclick="reiniciarJogo()">Reiniciar Jogo</button>
+  </div>
+
   <audio id="somRoleta" src="https://cdn.pixabay.com/audio/2022/10/30/audio_4c7408475f.mp3"></audio>
+  <script>
+    const palavras = [
+      { termo: "ADMINISTRAÇÃO MODERNA", pista: "Foco na contemporaneidade organizacional" },
+      { termo: "TAYLORISMO", pista: "Método baseado na divisão do trabalho" },
+      { termo: "MAX WEBER", pista: "Pai da burocracia" },
+      { termo: "PODC", pista: "Planejamento, Organização, Direção, Controle" },
+      { termo: "GESTÃO DE COLABORADORES", pista: "Administração de equipes" },
+      { termo: "TEORIA NEOCLÁSSICA", pista: "Ênfase na prática da administração" },
+      { termo: "RELAÇÕES HUMANAS", pista: "Teoria centrada no ser humano" }
+    ];
 
-  <script src="script.js"></script>
+    let palavraAtual = {};
+    let letrasUsadas = [];
+    let grupos = [];
+    let pontos = [];
+    let grupoIndex = 0;
+    let rodadas = 0;
+    const maxRodadas = 5;
+
+    function iniciarJogo() {
+      grupos = [];
+      pontos = [];
+      for (let i = 1; i <= 6; i++) {
+        let nome = document.getElementById(`grupo${i}`).value.trim();
+        if (nome) {
+          grupos.push(nome);
+          pontos.push(0);
+        }
+      }
+      if (grupos.length === 0) return alert("Adicione ao menos um grupo!");
+      document.getElementById('configuracao').style.display = 'none';
+      document.getElementById('jogo').style.display = 'block';
+      proximaRodada();
+    }
+
+    function proximaRodada() {
+      if (rodadas >= maxRodadas) return encerrarJogo();
+      palavraAtual = palavras[Math.floor(Math.random() * palavras.length)];
+      letrasUsadas = [];
+      document.getElementById('pista').textContent = `Pista: ${palavraAtual.pista}`;
+      exibirPainel();
+      atualizarLetrasUsadas();
+      atualizarPlacar();
+      atualizarGrupoAtual();
+      document.getElementById('entrada-letras').style.display = 'none';
+      rodadas++;
+    }
+
+    function exibirPainel() {
+      const painel = document.getElementById('painel');
+      painel.innerHTML = '';
+      palavraAtual.termo.split('').forEach(char => {
+        const div = document.createElement('div');
+        div.className = 'letra';
+        div.dataset.letra = char.toUpperCase();
+        div.textContent = char === ' ' ? ' ' : '';
+        painel.appendChild(div);
+      });
+    }
+
+    function atualizarLetrasUsadas() {
+      document.getElementById('letrasUsadas').textContent = 'Letras usadas: ' + letrasUsadas.join(', ');
+    }
+
+    function atualizarPlacar() {
+      const div = document.getElementById('placarGrupos');
+      div.innerHTML = '';
+      grupos.forEach((grupo, i) => {
+        div.innerHTML += `<div>${grupo}: ${pontos[i]} pts</div>`;
+      });
+    }
+
+    function atualizarGrupoAtual() {
+      document.getElementById('grupoAtual').textContent = `Vez de: ${grupos[grupoIndex]}`;
+    }
+
+    function girarRoleta() {
+      document.getElementById('entrada-letras').style.display = 'block';
+      document.getElementById('somRoleta').play();
+    }
+
+    function adivinharLetra() {
+      const letra = document.getElementById('letra').value.toUpperCase();
+      if (!letra || letrasUsadas.includes(letra)) return;
+      letrasUsadas.push(letra);
+      let acertou = false;
+      document.querySelectorAll('.letra').forEach(div => {
+        if (div.dataset.letra === letra) {
+          div.textContent = letra;
+          acertou = true;
+        }
+      });
+      if (acertou) {
+        pontos[grupoIndex] += 10;
+        verificarVitoria();
+      } else {
+        grupoIndex = (grupoIndex + 1) % grupos.length;
+        atualizarGrupoAtual();
+      }
+      atualizarLetrasUsadas();
+      atualizarPlacar();
+    }
+
+    function verificarVitoria() {
+      let venceu = true;
+      document.querySelectorAll('.letra').forEach(div => {
+        if (div.dataset.letra !== ' ' && div.textContent !== div.dataset.letra) {
+          venceu = false;
+        }
+      });
+      if (venceu) {
+        alert("Parabéns! Vocês completaram a palavra!");
+        pontos[grupoIndex] += 50;
+        atualizarPlacar();
+        proximaRodada();
+      }
+    }
+
+    function adivinharPalavra() {
+      const palpite = document.getElementById('palpite').value.toUpperCase().trim();
+      if (palpite === palavraAtual.termo) {
+        document.querySelectorAll('.letra').forEach(div => {
+          div.textContent = div.dataset.letra;
+        });
+        pontos[grupoIndex] += 50;
+        alert("Parabéns! Você acertou a palavra!");
+        atualizarPlacar();
+        proximaRodada();
+      } else {
+        alert("Palpite incorreto!");
+        grupoIndex = (grupoIndex + 1) % grupos.length;
+        atualizarGrupoAtual();
+      }
+    }
+
+    function encerrarJogo() {
+      document.getElementById('jogo').style.display = 'none';
+      document.getElementById('final').style.display = 'block';
+      const maxPontos = Math.max(...pontos);
+      const vencedores = grupos.filter((g, i) => pontos[i] === maxPontos);
+      document.getElementById('vencedor').innerHTML = `<h3>Vencedor(es): ${vencedores.join(', ')} com ${maxPontos} pontos!</h3>`;
+    }
+
+    function reiniciarJogo() {
+      location.reload();
+    }
+  </script>
 </body>
 </html>
