@@ -37,6 +37,27 @@
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.2);
     }
+    #roleta {
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      border: 10px solid #000;
+      position: relative;
+      margin: 20px auto;
+      display: inline-block;
+      background: conic-gradient(#ff0000 0% 25%, #00ff00 25% 50%, #0000ff 50% 75%, #ffff00 75% 100%);
+    }
+    #ponteiro {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-bottom: 20px solid #000;
+    }
   </style>
 </head>
 <body>
@@ -60,6 +81,9 @@
     <div id="letras"></div>
     <button onclick="girarRoleta()">Girar Roleta</button>
     <div id="resultadoRoleta"></div>
+    <div id="roleta">
+      <div id="ponteiro"></div>
+    </div>
   </div>
 
   <audio id="somRoleta" src="https://cdn.pixabay.com/audio/2022/10/30/audio_4c7408475f.mp3"></audio>
@@ -156,6 +180,12 @@
       const valor = Math.floor(Math.random() * 10 + 1) * 100;
       pontosRodada = valor;
       document.getElementById("resultadoRoleta").textContent = `Valor da roleta: ${valor}`;
+
+      // Girando a roleta
+      const roleta = document.getElementById("roleta");
+      const roletaDeg = Math.floor(Math.random() * 360);
+      roleta.style.transition = "transform 3s ease-out";
+      roleta.style.transform = `rotate(${roletaDeg + 1800}deg)`; // Gira mais de 5 vezes
     }
 
     function verificarLetra(letra) {
