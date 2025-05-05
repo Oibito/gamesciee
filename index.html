@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Roda a Roda CIEE</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Roda a Roda CIEE</h1>
+  </header>
+
+  <!-- Configuração do jogo (Inscrição dos grupos) -->
+  <section id="configuracao">
+    <h3>Insira os nomes dos grupos (até 6):</h3>
+    <div class="input-grupos">
+      <input class="grupo-input" id="grupo1" placeholder="Grupo 1" />
+      <input class="grupo-input" id="grupo2" placeholder="Grupo 2" />
+      <input class="grupo-input" id="grupo3" placeholder="Grupo 3" />
+      <input class="grupo-input" id="grupo4" placeholder="Grupo 4" />
+      <input class="grupo-input" id="grupo5" placeholder="Grupo 5" />
+      <input class="grupo-input" id="grupo6" placeholder="Grupo 6" />
+    </div>
+    <button id="iniciar-jogo">Iniciar Jogo</button>
+  </section>
+
+  <!-- Jogo em si -->
+  <section id="jogo" style="display: none;">
+    <div id="placar">
+      <h3>Placar</h3>
+      <div id="placarGrupos"></div>
+    </div>
+
+    <div id="painel"></div>
+    <div id="pista"></div>
+    <div id="grupoAtual"></div>
+
+    <div id="roleta-container">
+      <div id="ponteiro"></div>
+      <canvas id="canvas" width="300" height="300"></canvas>
+    </div>
+
+    <button id="girar-roleta">Girar Roleta</button>
+
+    <div class="adivinhar">
+      <input type="text" id="letra" maxlength="1" placeholder="Digite uma letra" />
+      <button id="adivinhar-letra">Adivinhar Letra</button>
+      <button id="adivinhar-palavra">Adivinhar Palavra</button>
+      <input type="text" id="palpite" placeholder="Palpite da palavra" />
+    </div>
+
+    <div id="letrasUsadas">Letras usadas: </div>
+    <div id="pontos">Pontos: 0</div>
+  </section>
+
+  <!-- Som da Roleta -->
+  <audio id="somRoleta" src="https://cdn.pixabay.com/audio/2022/10/30/audio_4c7408475f.mp3"></audio>
+
+  <script src="script.js"></script>
+</body>
+</html>
