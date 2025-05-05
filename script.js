@@ -42,4 +42,126 @@ let letrasReveladas = [];
 let letrasUsadas = [];
 let valorAtualRoleta = 0;
 
-const segmentos = [100, 200, 300, 400, 500, 600,
+const segmentos = [100, 200, 300, 400, 500, 600, 'Passe a vez', 'Perde tudo'];
+
+// Função para iniciar o jogo
+function iniciarJogo() {
+  // Captura os nomes dos grupos
+  grupos = [];
+  for (let i = 1; i <= 6; i++) {
+    let nome = document.getElementById(`grupo${i}`).value.trim();
+    if (nome) {
+      grupos.push(nome);
+    }
+  }
+
+  // Verifica se há ao menos um grupo
+  if (grupos.length === 0) {
+    alert("Insira ao menos um grupo.");
+    return;
+  }
+
+  // Inicializa a pontuação dos grupos
+  pontuacoes = Array(grupos.length).fill(0);
+
+  // Esconde a tela de configuração e mostra o jogo
+  document.getElementById("configuracao").style.display = "none";
+  document.getElementById("jogo").style.display = "block";
+
+  // Seleciona o primeiro grupo aleatoriamente
+  grupoAtual = Math.floor(Math.random() * grupos.length);
+
+  // Atualiza o placar e o grupo atual
+  atualizarPlacar();
+  atualizarGrupoAtual();
+
+  // Escolhe a palavra secreta
+  escolherPalavra();
+
+  // Desenha o painel (palavra secreta)
+  desenharPainel();
+
+  // Desenha a roleta
+  desenharRoleta();
+}
+
+// Função para escolher a palavra secreta
+function escolherPalavra() {
+  const index = Math.floor(Math.random() * palavrasEPistas.length);
+  palavraSecreta = palavrasEPistas[index].palavra.toLowerCase();
+  letrasReveladas = Array(palavraSecreta.length).fill(false);
+  document.getElementById("pista").textContent = `Pista: ${palavrasEPistas[index].pista}`;
+}
+
+// Função para desenhar o painel de letras
+function desenharPainel() {
+  const painel = document.getElementById("painel");
+  painel.innerHTML = "";
+  for (let i = 0; i < palavraSecreta.length; i++) {
+    const span = document.createElement("span");
+    span.className = "letra";
+    const char = palavraSecreta[i];
+    if (char === " ") {
+      span.textContent = "-";
+    } else {
+      span.textContent = letrasReveladas[i] ? char.toUpperCase() : "";
+    }
+    painel.appendChild(span);
+  }
+}
+
+// Função para atualizar o placar
+function atualizarPlacar() {
+  const placar = document.getElementById("placarGrupos");
+  placar.innerHTML = "";
+  grupos.forEach((grupo, index) => {
+    placar.innerHTML += `<div>${grupo}: ${pontuacoes[index]} pontos</div>`;
+  });
+}
+
+// Função para atualizar o grupo atual
+function atualizarGrupoAtual() {
+  document.getElementById("grupoAtual").textContent = `Vez do grupo: ${grupos[grupoAtual]}`;
+}
+
+// Função para desenhar a roleta
+function desenharRoleta() {
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+  const total = segmentos.length;
+  const angulo = 2 * Math.PI / total;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  for (let i = 0; i < total; i++) {
+    ctx.beginPath();
+    ctx.moveTo(150, 150);
+    ctx.fillStyle = i % 2 === 0 ? "#FFD700" : "#FF4500";
+    ctx.arc(150, 150, 150, i * angulo, (i + 1) * angulo);
+    ctx.fill();
+    ctx.fillStyle = "black";
+    ctx.font = "bold 14px sans-serif";
+    ctx.save();
+    ctx.translate(150, 150);
+    ctx.rotate(i * angulo + angulo / 2);
+    ctx.textAlign = "right";
+    ctx.fillText(segmentos[i], 140, 0);
+    ctx.restore();
+  }
+}
+
+// Função para girar a roleta
+function girarRoleta() {
+  const som = document.getElementById("somRoleta");
+  som.play();
+  const escolhido = Math.floor(Math.random() * segmentos.length);
+  valorAtualRoleta = segmentos[escolhido];
+
+  setTimeout(() => {
+    alert(`Resultado da roleta: ${valorAtualRoleta}`);
+    if (valorAtualRoleta === 'Passe a vez' || valorAtualRoleta === 'Perde tudo') {
+      if (valorAtualRoleta === 'Perde tudo') pontuacoes[grupoAtual] = 0;
+      grupoAtual = (grupoAtual + 1) % grupos.length;
+      atualizarPlacar();
+      atualizarGrupoAtual();
+    }
+  }, 1000);
