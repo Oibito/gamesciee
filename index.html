@@ -6,9 +6,13 @@
   <title>Roda a Roda - CIEE SC</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background: #f0f0f0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #fdfbfb, #ebedee);
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      color: #2c3e50;
     }
     .hidden {
       display: none;
@@ -16,14 +20,21 @@
     .group-inputs input {
       display: block;
       margin: 5px auto;
+      padding: 10px;
+      font-size: 16px;
     }
-    .roleta {
-      width: 200px;
-      height: 200px;
-      border-radius: 50%;
-      border: 10px solid #333;
-      margin: 20px auto;
-      position: relative;
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 20px;
+      gap: 20px;
+    }
+    .left, .right {
+      flex: 1 1 300px;
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
     .word-display span {
       display: inline-block;
@@ -31,27 +42,54 @@
       border-bottom: 2px solid #000;
       margin: 5px;
       font-size: 24px;
+      text-align: center;
     }
     .placar {
       display: flex;
       justify-content: center;
       gap: 20px;
-      margin: 20px 0;
+      margin-top: 20px;
+      flex-wrap: wrap;
     }
     .placar div {
-      background: #fff;
+      background: #ecf0f1;
       padding: 10px;
-      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-shadow: 1px 1px 5px rgba(0,0,0,0.1);
+    }
+    .roleta {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      border: 10px solid #2980b9;
+      margin: 20px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      background: conic-gradient(#3498db 0% 20%, #2ecc71 20% 40%, #f1c40f 40% 60%, #e67e22 60% 80%, #e74c3c 80% 100%);
+      color: white;
+      text-shadow: 1px 1px 2px #333;
+      transition: transform 1s ease-out;
     }
     button {
       margin: 10px;
-      padding: 10px;
+      padding: 10px 15px;
+      font-size: 16px;
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #2980b9;
     }
   </style>
 </head>
 <body>
   <div id="telaInicial">
-    <h1>Roda a Roda - CIEE SC</h1>
+    <h1 style="text-align:center;">Roda a Roda - CIEE SC</h1>
     <div class="group-inputs">
       <input type="text" placeholder="Grupo 1">
       <input type="text" placeholder="Grupo 2">
@@ -60,37 +98,74 @@
       <input type="text" placeholder="Grupo 5">
       <input type="text" placeholder="Grupo 6">
     </div>
-    <button onclick="iniciarJogo()">Iniciar Jogo</button>
+    <div style="text-align:center;">
+      <button onclick="iniciarJogo()">Iniciar Jogo</button>
+    </div>
   </div>
 
   <div id="telaJogo" class="hidden">
-    <h1>Roda a Roda - CIEE SC</h1>
-    <div id="pista">Pista: Teoria Clássica da Administração</div>
-    <div class="word-display" id="quadroPalavra"></div>
+    <h1 style="text-align:center;">Roda a Roda - CIEE SC</h1>
+    <div class="container">
+      <div class="left">
+        <div id="pista"><strong>Pista:</strong></div>
+        <div class="word-display" id="quadroPalavra"></div>
+        <div><strong>Grupo da vez:</strong> <span id="grupoAtualNome"></span></div>
+        <div class="placar" id="placar"></div>
+      </div>
 
-    <div class="roleta" id="roleta">Clique para girar</div>
-    <button onclick="girarRoleta()">Girar Roleta</button>
-    <div>
-      <input type="text" id="letraInput" maxlength="1" placeholder="Digite uma letra">
-      <button onclick="tentarLetra()">Tentar Letra</button>
+      <div class="right">
+        <div class="roleta" id="roleta">Clique para girar</div>
+        <button onclick="girarRoleta()">Girar Roleta</button>
+        <div>
+          <input type="text" id="letraInput" maxlength="1" placeholder="Digite uma letra">
+          <button onclick="tentarLetra()">Tentar Letra</button>
+        </div>
+        <div>
+          <input type="text" id="chutePalavra" placeholder="Arrisque a palavra" disabled>
+          <button onclick="arriscarPalavra()" disabled id="btnArriscar">Arriscar</button>
+        </div>
+        <button onclick="novaRodada()">Outra Palavra</button>
+        <button onclick="encerrarJogo()">Encerrar Jogo</button>
+      </div>
     </div>
-    <div>
-      <input type="text" id="chutePalavra" placeholder="Arrisque a palavra" disabled>
-      <button onclick="arriscarPalavra()" disabled id="btnArriscar">Arriscar</button>
-    </div>
-    <button onclick="novaRodada()">Outra Palavra</button>
-    <button onclick="encerrarJogo()">Encerrar Jogo</button>
 
-    <div class="placar" id="placar"></div>
-    <div id="vencedor" class="hidden"></div>
+    <div id="vencedor" class="hidden" style="text-align:center;"></div>
   </div>
 
   <script>
     const palavras = [
       { palavra: "ORGANIZACAO", pista: "Teoria Clássica da Administração" },
       { palavra: "MOTIVACAO", pista: "Teoria Comportamental" },
-      { palavra: "PROCESSO", pista: "Teoria Neoclássica" }
+      { palavra: "PROCESSO", pista: "Teoria Neoclássica" },
+      { palavra: "EFICIENCIA", pista: "Teoria Científica" },
+      { palavra: "EFICACIA", pista: "Administração por Objetivos" },
+      { palavra: "ESTRUTURA", pista: "Teoria da Burocracia" },
+      { palavra: "AUTORIDADE", pista: "Teoria Clássica" },
+      { palavra: "OBJETIVO", pista: "Teoria Neoclássica" },
+      { palavra: "PLANEJAMENTO", pista: "Administração Estratégica" },
+      { palavra: "CONTROLE", pista: "Funções Administrativas" },
+      { palavra: "ORGANIZAR", pista: "Funções da Administração" },
+      { palavra: "DIRECAO", pista: "Funções da Administração" },
+      { palavra: "AVALIACAO", pista: "Gestão por Competência" },
+      { palavra: "FEEDBACK", pista: "Teoria dos Sistemas" },
+      { palavra: "INTEGRACAO", pista: "Teoria das Relações Humanas" },
+      { palavra: "LIDERANCA", pista: "Teoria Comportamental" },
+      { palavra: "PRODUTIVIDADE", pista: "Teoria da Qualidade Total" },
+      { palavra: "QUALIDADE", pista: "Teoria da Qualidade" },
+      { palavra: "SISTEMAS", pista: "Teoria dos Sistemas" },
+      { palavra: "SINERGIA", pista: "Teoria dos Sistemas" },
+      { palavra: "REDES", pista: "Teoria Contingencial" },
+      { palavra: "AMBIENTE", pista: "Teoria Contingencial" },
+      { palavra: "INFORMACAO", pista: "Teoria da Informação" },
+      { palavra: "DECISAO", pista: "Teoria das Decisões" },
+      { palavra: "PLANEJAR", pista: "Administração Estratégica" },
+      { palavra: "CULTURA", pista: "Teoria Institucional" },
+      { palavra: "MUDANCA", pista: "Gestão de Mudanças" },
+      { palavra: "INOVACAO", pista: "Gestão da Inovação" },
+      { palavra: "CONHECIMENTO", pista: "Gestão do Conhecimento" },
+      { palavra: "RECURSOS", pista: "Gestão de Recursos" }
     ];
+    let palavrasRestantes = [...palavras];
     const roletaValores = [100, 200, 300, 400, 500, 'perdeTudo', 'passaVez'];
 
     let grupos = [];
@@ -120,7 +195,11 @@
     }
 
     function novaRodada() {
-      palavraAtual = palavras[Math.floor(Math.random() * palavras.length)];
+      if (palavrasRestantes.length === 0) {
+        palavrasRestantes = [...palavras];
+      }
+      const indice = Math.floor(Math.random() * palavrasRestantes.length);
+      palavraAtual = palavrasRestantes.splice(indice, 1)[0];
       letrasCertas = [];
       document.getElementById('pista').textContent = `Pista: ${palavraAtual.pista}`;
       const quadro = document.getElementById('quadroPalavra');
@@ -128,12 +207,17 @@
       for (let letra of palavraAtual.palavra) {
         quadro.innerHTML += `<span>_</span>`;
       }
-      atualizarPlacar();
+      document.getElementById('chutePalavra').value = '';
+      document.getElementById('letraInput').value = '';
+      document.getElementById('chutePalavra').disabled = true;
+      document.getElementById('btnArriscar').disabled = true;
       tempoInicial = Date.now();
       setTimeout(() => {
         document.getElementById('chutePalavra').disabled = false;
         document.getElementById('btnArriscar').disabled = false;
       }, 300000);
+      atualizarPlacar();
+      atualizarGrupoAtual();
     }
 
     function atualizarPlacar() {
@@ -144,25 +228,35 @@
       });
     }
 
+    function atualizarGrupoAtual() {
+      document.getElementById('grupoAtualNome').textContent = grupos[grupoAtual];
+    }
+
     function girarRoleta() {
-      const resultado = roletaValores[Math.floor(Math.random() * roletaValores.length)];
-      if (resultado === 'passaVez') {
-        alert("Passa a vez!");
-        grupoAtual = (grupoAtual + 1) % grupos.length;
-      } else if (resultado === 'perdeTudo') {
-        alert("Perde tudo!");
-        pontuacoes[grupoAtual] = 0;
-        grupoAtual = (grupoAtual + 1) % grupos.length;
-      } else {
-        const pontos = resultado;
-        const letra = prompt("Digite uma letra:").toUpperCase();
-        tentarLetraComValor(letra, pontos);
-      }
-      atualizarPlacar();
+      const roleta = document.getElementById('roleta');
+      roleta.style.transform = `rotate(${Math.floor(Math.random() * 360 + 720)}deg)`;
+      setTimeout(() => {
+        const resultado = roletaValores[Math.floor(Math.random() * roletaValores.length)];
+        if (resultado === 'passaVez') {
+          alert("Passa a vez!");
+          grupoAtual = (grupoAtual + 1) % grupos.length;
+        } else if (resultado === 'perdeTudo') {
+          alert("Perde tudo!");
+          pontuacoes[grupoAtual] = 0;
+          grupoAtual = (grupoAtual + 1) % grupos.length;
+        } else {
+          const pontos = resultado;
+          const letra = prompt("Digite uma letra:").toUpperCase();
+          tentarLetraComValor(letra, pontos);
+        }
+        atualizarPlacar();
+        atualizarGrupoAtual();
+      }, 1000);
     }
 
     function tentarLetra() {
       const letra = document.getElementById('letraInput').value.toUpperCase();
+      document.getElementById('letraInput').value = '';
       tentarLetraComValor(letra, 100);
     }
 
@@ -186,6 +280,7 @@
         novaRodada();
       }
       atualizarPlacar();
+      atualizarGrupoAtual();
     }
 
     function arriscarPalavra() {
@@ -197,6 +292,7 @@
       } else {
         alert("Errado! Passa a vez.");
         grupoAtual = (grupoAtual + 1) % grupos.length;
+        atualizarGrupoAtual();
       }
       atualizarPlacar();
     }
