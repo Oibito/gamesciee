@@ -85,6 +85,12 @@
     button:hover {
       background: #2980b9;
     }
+    .resultado-roleta {
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 20px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -130,6 +136,7 @@
     </div>
 
     <div id="vencedor" class="hidden" style="text-align:center;"></div>
+    <div id="resultadoRoleta" class="resultado-roleta hidden"></div>
   </div>
 
   <script>
@@ -173,7 +180,6 @@
     let grupoAtual = 0;
     let palavraAtual = {};
     let letrasCertas = [];
-    let tempoInicial;
 
     function iniciarJogo() {
       const inputs = document.querySelectorAll('.group-inputs input');
@@ -225,20 +231,24 @@
       roleta.style.transform = `rotate(${Math.floor(Math.random() * 360 + 720)}deg)`;
       setTimeout(() => {
         const resultado = roletaValores[Math.floor(Math.random() * roletaValores.length)];
+        const resultadoTexto = document.getElementById('resultadoRoleta');
+        
         if (resultado === 'passaVez') {
-          alert("Passa a vez!");
+          resultadoTexto.textContent = "Passa a vez!";
           grupoAtual = (grupoAtual + 1) % grupos.length;
         } else if (resultado === 'perdeTudo') {
-          alert("Perde tudo!");
+          resultadoTexto.textContent = "Perde tudo!";
           pontuacoes[grupoAtual] = 0;
           grupoAtual = (grupoAtual + 1) % grupos.length;
         } else {
-          const pontos = resultado;
+          resultadoTexto.textContent = `Ganhou: ${resultado} pontos!`;
+          pontuacoes[grupoAtual] += resultado;
           document.getElementById('letraInput').classList.remove('hidden');
           document.querySelector('button[onclick="tentarLetra()"]').classList.remove('hidden');
         }
         atualizarPlacar();
         atualizarGrupoAtual();
+        resultadoTexto.classList.remove('hidden');
       }, 1000);
     }
 
