@@ -215,6 +215,9 @@
 
     const segmentos = [100, 200, 300, 400, 500, 600, 'Passe a vez', 'Perde tudo'];
 
+    let anguloRoleta = 0; // Ângulo de rotação da roleta
+    let girando = false; // Flag para verificar se a roleta está girando
+
     function iniciarJogo() {
       grupos = [];
       for (let i = 1; i <= 6; i++) {
@@ -275,20 +278,22 @@
       const canvas = document.getElementById("canvas");
       const ctx = canvas.getContext("2d");
       const total = segmentos.length;
-      const angulo = 2 * Math.PI / total;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const anguloPorSegmento = 2 * Math.PI / total;
+      
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpa o canvas
 
+      // Desenha os segmentos da roleta
       for (let i = 0; i < total; i++) {
         ctx.beginPath();
         ctx.moveTo(150, 150);
-        ctx.fillStyle = i % 2 === 0 ? "#FFD700" : "#FF4500";
-        ctx.arc(150, 150, 150, i * angulo, (i + 1) * angulo);
+        ctx.fillStyle = i % 2 === 0 ? "#FFD700" : "#FF4500"; // Alterna as cores
+        ctx.arc(150, 150, 150, anguloRoleta + i * anguloPorSegmento, anguloRoleta + (i + 1) * anguloPorSegmento);
         ctx.fill();
         ctx.fillStyle = "black";
         ctx.font = "bold 14px sans-serif";
         ctx.save();
         ctx.translate(150, 150);
-        ctx.rotate(i * angulo + angulo / 2);
+        ctx.rotate(anguloRoleta + i * anguloPorSegmento + anguloPorSegmento / 2);
         ctx.textAlign = "right";
         ctx.fillText(segmentos[i], 140, 0);
         ctx.restore();
@@ -296,64 +301,88 @@
     }
 
     function girarRoleta() {
+      if (girando) return; // Impede que o botão gire enquanto a roleta está girando
+
+      girando = true; // Define que a roleta está girando
       const som = document.getElementById("somRoleta");
       som.play();
-      const escolhido = Math.floor(Math.random() * segmentos.length);
-      valorAtualRoleta = segmentos[escolhido];
 
-      setTimeout(() => {
-        alert(`Resultado da roleta: ${valorAtualRoleta}`);
-        if (valorAtualRoleta === 'Passe a vez' || valorAtualRoleta === 'Perde tudo') {
-          if (valorAtualRoleta === 'Perde tudo') pontuacoes[grupoAtual] = 0;
-          grupoAtual = (grupoAtual + 1) % grupos.length;
-          atualizarPlacar();
-          atualizarGrupoAtual();
+      const duracao = 3000; // Duração do giro (em milissegundos)
+      const segmentosCount = segmentos.length;
+      const anguloFinal = Math.floor(Math.random() * segmentosCount) * (2 * Math.PI / segmentosCount); // Posição final aleatória
+
+      let inicioTempo = null;
+
+      function animarRoleta(tempoAtual) {
+        if (!inicioTempo) inicioTempo = tempoAtual;
+
+        const tempoDecorrido = tempoAtual - inicioTempo;
+        const progresso = Math.min(tempoDecorrido / duracao, 1); // Normaliza o progresso para 1
+
+        anguloRoleta = progresso * anguloFinal + 10 * Math.PI; // Gira mais de uma vez para simular o giro
+
+        desenharRoleta(anguloRoleta); // Redesenha a roleta com o novo ângulo
+
+        if (progresso < 1) {
+          requestAnimationFrame(animarRoleta); // Continua a animação enquanto não atingiu o final
+        } else {
+          // Determina o segmento escolhido
+          const escolhido = Math.floor(((anguloRoleta % (2 * Math.PI)) / (2 * Math.PI)) * segmentosCount);
+          valorAtualRoleta = segmentos[escolhido];
+          setTimeout(() => {
+            alert(`Resultado da roleta: ${valorAtualRoleta}`);
+            if (valorAtualRoleta === 'Passe a vez' || valorAtualRoleta === 'Perde tudo') {
+              if (valorAtualRoleta === 'Perde tudo') pontuacoes[grupoAtual] = 0;
+              grupoAtual = (grupoAtual + 1) % grupos.length;
+              atualizarPlacar();
+              atualizarGrupoAtual();
+            }
+          }, 500); // Pequeno atraso para mostrar o resultado
+          girando = false; // A roleta parou de girar
         }
-      }, 1000);
+      }
+
+      requestAnimationFrame(animarRoleta); // Começa a animação
     }
 
     function adivinharLetra() {
-      const letra = document.getElementById("letra").value.toLowerCase();
-      if (!letra || letrasUsadas.includes(letra)) return;
-
-      letrasUsadas.push(letra);
-      document.getElementById("letrasUsadas").textContent = `Letras usadas: ${letrasUsadas.join(", ").toUpperCase()}`;
-      let acertou = false;
-      let pontosGanhos = 0;
-
-      for (let i = 0; i < palavraSecreta.length; i++) {
-        if (palavraSecreta[i] === letra && !letrasReveladas[i]) {
-          letrasReveladas[i] = true;
-          acertou = true;
-          pontosGanhos += typeof valorAtualRoleta === "number" ? valorAtualRoleta : 0;
+      const letra = document.getElementById("letra").value.trim().toLowerCase();
+      if (letra && !letrasUsadas.includes(letra)) {
+        letrasUsadas.push(letra);
+        let acerto = false;
+        for (let i = 0; i < palavraSecreta.length; i++) {
+          if (palavraSecreta[i] === letra) {
+            letrasReveladas[i] = true;
+            acerto = true;
+          }
         }
-      }
-
-      if (acertou) {
-        pontuacoes[grupoAtual] += pontosGanhos;
+        if (acerto) {
+          pontuacoes[grupoAtual] += 50;
+        } else {
+          pontuacoes[grupoAtual] -= 25;
+        }
+        letrasUsadas.push(letra);
         atualizarPlacar();
         desenharPainel();
-      } else {
-        grupoAtual = (grupoAtual + 1) % grupos.length;
         atualizarGrupoAtual();
       }
-
-      document.getElementById("letra").value = "";
     }
 
     function adivinharPalavra() {
-      const palpite = document.getElementById("palpite").value.toLowerCase();
-      if (palpite === palavraSecreta) {
-        alert("Parabéns! Palavra correta.");
-        pontuacoes[grupoAtual] += typeof valorAtualRoleta === "number" ? valorAtualRoleta * 3 : 1000;
+      const palavra = document.getElementById("palpite").value.trim().toLowerCase();
+      if (palavra === palavraSecreta) {
+        alert("Parabéns! Você acertou a palavra!");
+        pontuacoes[grupoAtual] += 200;
         atualizarPlacar();
         desenharPainel();
+        escolherPalavra();
       } else {
-        alert("Palavra incorreta!");
+        alert("Palpite errado! Perdeu pontos!");
+        pontuacoes[grupoAtual] -= 100;
+        atualizarPlacar();
+        grupoAtual = (grupoAtual + 1) % grupos.length;
+        atualizarGrupoAtual();
       }
-      grupoAtual = (grupoAtual + 1) % grupos.length;
-      atualizarGrupoAtual();
-      document.getElementById("palpite").value = "";
     }
   </script>
 </body>
