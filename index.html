@@ -117,8 +117,8 @@
         <div class="roleta" id="roleta">Clique para girar</div>
         <button onclick="girarRoleta()">Girar Roleta</button>
         <div>
-          <input type="text" id="letraInput" maxlength="1" placeholder="Digite uma letra">
-          <button onclick="tentarLetra()">Tentar Letra</button>
+          <input type="text" id="letraInput" maxlength="1" placeholder="Digite uma letra" class="hidden">
+          <button onclick="tentarLetra()" class="hidden">Tentar Letra</button>
         </div>
         <div>
           <input type="text" id="chutePalavra" placeholder="Arrisque a palavra" disabled>
@@ -201,35 +201,23 @@
       const indice = Math.floor(Math.random() * palavrasRestantes.length);
       palavraAtual = palavrasRestantes.splice(indice, 1)[0];
       letrasCertas = [];
+      atualizarTela();
+    }
+
+    function atualizarTela() {
       document.getElementById('pista').textContent = `Pista: ${palavraAtual.pista}`;
-      const quadro = document.getElementById('quadroPalavra');
-      quadro.innerHTML = '';
-      for (let letra of palavraAtual.palavra) {
-        quadro.innerHTML += `<span>_</span>`;
-      }
-      document.getElementById('chutePalavra').value = '';
-      document.getElementById('letraInput').value = '';
-      document.getElementById('chutePalavra').disabled = true;
-      document.getElementById('btnArriscar').disabled = true;
-      tempoInicial = Date.now();
-      setTimeout(() => {
-        document.getElementById('chutePalavra').disabled = false;
-        document.getElementById('btnArriscar').disabled = false;
-      }, 300000);
+      const palavraDisplay = palavraAtual.palavra.split('').map(l => letrasCertas.includes(l) ? l : '_').join(' ');
+      document.getElementById('quadroPalavra').innerHTML = palavraDisplay.split('').map(l => `<span>${l}</span>`).join('');
+      document.getElementById('grupoAtualNome').textContent = grupos[grupoAtual];
       atualizarPlacar();
-      atualizarGrupoAtual();
     }
 
     function atualizarPlacar() {
-      const placarDiv = document.getElementById('placar');
-      placarDiv.innerHTML = '';
-      grupos.forEach((grupo, i) => {
-        placarDiv.innerHTML += `<div><strong>${grupo}</strong><br>${pontuacoes[i]} pontos</div>`;
-      });
-    }
-
-    function atualizarGrupoAtual() {
-      document.getElementById('grupoAtualNome').textContent = grupos[grupoAtual];
+      const placar = document.getElementById('placar');
+      placar.innerHTML = '';
+      for (let i = 0; i < grupos.length; i++) {
+        placar.innerHTML += `<div>${grupos[i]}: ${pontuacoes[i]}</div>`;
+      }
     }
 
     function girarRoleta() {
@@ -246,8 +234,8 @@
           grupoAtual = (grupoAtual + 1) % grupos.length;
         } else {
           const pontos = resultado;
-          const letra = prompt("Digite uma letra:").toUpperCase();
-          tentarLetraComValor(letra, pontos);
+          document.getElementById('letraInput').classList.remove('hidden');
+          document.querySelector('button[onclick="tentarLetra()"]').classList.remove('hidden');
         }
         atualizarPlacar();
         atualizarGrupoAtual();
@@ -297,13 +285,15 @@
       atualizarPlacar();
     }
 
+    function atualizarGrupoAtual() {
+      document.getElementById('grupoAtualNome').textContent = grupos[grupoAtual];
+    }
+
     function encerrarJogo() {
+      const vencedor = grupos[pontuacoes.indexOf(Math.max(...pontuacoes))];
+      alert(`Jogo encerrado! O vencedor é ${vencedor}`);
       document.getElementById('telaJogo').classList.add('hidden');
-      const vencedorDiv = document.getElementById('vencedor');
-      vencedorDiv.classList.remove('hidden');
-      let maiorPontuacao = Math.max(...pontuacoes);
-      let vencedores = grupos.filter((_, i) => pontuacoes[i] === maiorPontuacao);
-      vencedorDiv.innerHTML = `<h2>🏆 Jogo Encerrado!</h2><p>Vencedor(es): ${vencedores.join(', ')} com ${maiorPontuacao} pontos.</p>`;
+      document.getElementById('telaInicial').classList.remove('hidden');
     }
   </script>
 </body>
