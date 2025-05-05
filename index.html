@@ -6,215 +6,354 @@
   <title>Roda a Roda CIEE</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Trebuchet MS', sans-serif;
       text-align: center;
-      background-color: #f4f4f4;
-      margin: 0;
-      padding: 0;
+      background: url('https://i.ibb.co/6S464MZ/bg.png') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
     }
-    #jogo, #painel, #letras, #placarGrupos {
-      margin: 20px auto;
+
+    h1 {
+      color: gold;
+      text-shadow: 2px 2px 5px black;
     }
-    #painel span {
-      display: inline-block;
-      width: 30px;
-      border-bottom: 2px solid #000;
+
+    #configuracao {
+      margin-top: 100px;
+    }
+
+    .grupo-input {
       margin: 5px;
-      font-size: 24px;
     }
-    #letras button {
-      margin: 2px;
-      padding: 10px;
-      font-size: 16px;
-    }
-    #placarGrupos {
-      position: absolute;
-      top: 20px;
+
+    #placar {
+      position: fixed;
+      top: 50%;
       left: 20px;
-      text-align: left;
-      background: #fff;
-      padding: 10px;
+      transform: translateY(-50%);
+      background: rgba(0, 0, 0, 0.7);
+      border: 2px solid gold;
       border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      padding: 10px;
+      text-align: left;
+      z-index: 5;
     }
-    #roleta {
+
+    #placar h3 {
+      margin: 0 0 10px;
+      color: gold;
+    }
+
+    .painel {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 20px auto;
+      max-width: 80%;
+    }
+
+    .letra {
+      width: 50px;
+      height: 50px;
+      margin: 5px;
+      background: #001f4d;
+      border: 3px solid gold;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      text-transform: uppercase;
+      color: white;
+      box-shadow: 0 0 10px #000;
+    }
+
+    #roleta-container {
+      position: relative;
+      margin: 30px auto;
       width: 300px;
       height: 300px;
-      border-radius: 50%;
-      border: 10px solid #000;
-      position: relative;
-      margin: 20px auto;
-      display: inline-block;
-      background: conic-gradient(#ff0000 0% 25%, #00ff00 25% 50%, #0000ff 50% 75%, #ffff00 75% 100%);
     }
+
     #ponteiro {
-      position: absolute;
-      top: -10px;
-      left: 50%;
-      transform: translateX(-50%);
       width: 0;
       height: 0;
-      border-left: 10px solid transparent;
-      border-right: 10px solid transparent;
-      border-bottom: 20px solid #000;
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-bottom: 25px solid red;
+      position: absolute;
+      top: -25px;
+      left: calc(50% - 15px);
+      z-index: 10;
+    }
+
+    button {
+      margin: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background: gold;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      color: black;
+      font-weight: bold;
+      box-shadow: 0 0 5px black;
+    }
+
+    input {
+      margin: 5px;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 2px solid gold;
+      background: #fff;
+    }
+
+    #letrasUsadas, #pontos, #pista, #grupoAtual {
+      font-size: 20px;
+      margin: 15px;
+    }
+
+    #pontos {
+      color: gold;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
     }
   </style>
 </head>
 <body>
+  <h1>Roda a Roda CIEE</h1>
   <div id="configuracao">
-    <h1>Roda a Roda CIEE</h1>
-    <label>Grupo 1: <input id="grupo1" type="text"></label><br>
-    <label>Grupo 2: <input id="grupo2" type="text"></label><br>
-    <label>Grupo 3: <input id="grupo3" type="text"></label><br>
-    <label>Grupo 4: <input id="grupo4" type="text"></label><br>
-    <label>Grupo 5: <input id="grupo5" type="text"></label><br>
-    <label>Grupo 6: <input id="grupo6" type="text"></label><br><br>
+    <h3>Insira os nomes dos grupos (até 6):</h3>
+    <div>
+      <input class="grupo-input" id="grupo1" placeholder="Grupo 1" />
+      <input class="grupo-input" id="grupo2" placeholder="Grupo 2" />
+      <input class="grupo-input" id="grupo3" placeholder="Grupo 3" />
+      <input class="grupo-input" id="grupo4" placeholder="Grupo 4" />
+      <input class="grupo-input" id="grupo5" placeholder="Grupo 5" />
+      <input class="grupo-input" id="grupo6" placeholder="Grupo 6" />
+    </div>
     <button onclick="iniciarJogo()">Iniciar Jogo</button>
   </div>
 
-  <div id="jogo" style="display:none">
-    <div id="placarGrupos"></div>
-    <div id="grupoAtual"></div>
-    <div id="pontos"></div>
-    <div id="pista"></div>
-    <div id="painel"></div>
-    <div id="letras"></div>
-    <button onclick="girarRoleta()">Girar Roleta</button>
-    <div id="resultadoRoleta"></div>
-    <div id="roleta">
-      <div id="ponteiro"></div>
+  <div id="jogo" style="display: none;">
+    <div id="placar">
+      <h3>Placar</h3>
+      <div id="placarGrupos"></div>
     </div>
+
+    <div class="painel" id="painel"></div>
+    <div id="pista"></div>
+    <div id="grupoAtual"></div>
+
+    <div id="roleta-container">
+      <div id="ponteiro"></div>
+      <canvas id="canvas" width="300" height="300"></canvas>
+    </div>
+
+    <button onclick="girarRoleta()">Girar Roleta</button>
+
+    <div>
+      <input type="text" id="letra" maxlength="1" placeholder="Digite uma letra" />
+      <button onclick="adivinharLetra()">Adivinhar Letra</button>
+      <button onclick="adivinharPalavra()">Adivinhar Palavra</button>
+      <input type="text" id="palpite" placeholder="Palpite da palavra" />
+    </div>
+
+    <div id="letrasUsadas">Letras usadas: </div>
+    <div id="pontos">Pontos: 0</div>
   </div>
 
   <audio id="somRoleta" src="https://cdn.pixabay.com/audio/2022/10/30/audio_4c7408475f.mp3"></audio>
-
   <script>
-    const palavras = [
-      { palavra: "Teorias da Administração", pista: "Conjunto de ideias sobre como administrar" },
-      { palavra: "Henri Fayol", pista: "Criador da Teoria Clássica da Administração" },
-      { palavra: "Administração Científica", pista: "Foco na eficiência operacional, criada por Taylor" },
-      { palavra: "Burocracia segundo Weber", pista: "Modelo ideal baseado em regras e hierarquia" },
-      { palavra: "Teoria das Relações Humanas", pista: "Ênfase nas pessoas e suas relações no trabalho" },
-      { palavra: "Planejamento, Organização, Direção, Controle", pista: "Funções administrativas segundo Fayol" },
-      { palavra: "Taylorismo", pista: "Administração científica voltada à produtividade" },
-      { palavra: "Eficiência e Eficácia", pista: "Fazer certo e fazer o certo" },
-      { palavra: "Teoria Neoclássica", pista: "Retomada dos princípios clássicos com ênfase nos resultados" },
-      { palavra: "Ambiente Organizacional", pista: "Contexto interno e externo de uma empresa" },
-      { palavra: "Hierarquização", pista: "Distribuição de autoridade em níveis" },
-      { palavra: "Tecnologias de Comunicação", pista: "Ferramentas que facilitam o fluxo de informação" },
-      { palavra: "Administração Moderna", pista: "Técnicas contemporâneas de gestão" },
-      { palavra: "Processor de Globalização", pista: "Integração econômica e cultural mundial" },
-      { palavra: "Humanística", pista: "Ênfase na motivação e liderança" },
-      { palavra: "Gestão de Colaboradores", pista: "Administração do capital humano da empresa" },
-      { palavra: "Gestão Contemporânea", pista: "Novas abordagens do século XXI" },
-      { palavra: "Gestão Horizontal", pista: "Menor hierarquia, maior colaboração" },
-      { palavra: "Aspectos de Gestão", pista: "Diferentes elementos da administração" },
-      { palavra: "Pré Histórico", pista: "Período anterior ao registro escrito" },
-      { palavra: "Efeito Hawthorne", pista: "Melhora no desempenho ao se sentir observado" },
-      { palavra: "Relações Humanas", pista: "Interações no ambiente de trabalho" },
-      { palavra: "Conhecimento Multidisciplinar", pista: "Integra diversas áreas do saber" },
-      { palavra: "Max Weber", pista: "Criador do modelo burocrático de gestão" },
-      { palavra: "Competência Técnica", pista: "Capacidade de realizar tarefas específicas" },
-      { palavra: "Promoção e Seleção", pista: "Processos de crescimento e escolha de colaboradores" },
-      { palavra: "Direitos e Deveres", pista: "Princípios que regulam condutas no trabalho" },
-      { palavra: "Linha de Montagem", pista: "Produção em série com tarefas repetitivas" },
-      { palavra: "Crescente Divisão", pista: "Separação e especialização das atividades" }
+    const palavrasEPistas = [
+      { palavra: "Henri Fayol", pista: "Teorias da Administração" },
+      { palavra: "Administração Científica", pista: "Teorias da Administração" },
+      { palavra: "Burocracia segundo Weber", pista: "Teorias da Administração" },
+      { palavra: "Teoria das Relações Humanas", pista: "Teorias da Administração" },
+      { palavra: "Planejamento, Organização, Direção, Controle (PODC)", pista: "Teorias da Administração" },
+      { palavra: "Taylorismo", pista: "Teorias da Administração" },
+      { palavra: "Eficiência e Eficácia", pista: "Teorias da Administração" },
+      { palavra: "Teoria Neoclássica", pista: "Teorias da Administração" },
+      { palavra: "Ambiente Organizacional", pista: "Teorias da Administração" },
+      { palavra: "Hierarquização", pista: "Teorias da Administração" },
+      { palavra: "Tecnologias de Comunicação", pista: "Teorias da Administração" },
+      { palavra: "Administração Moderna", pista: "Teorias da Administração" },
+      { palavra: "Processor de Globalização", pista: "Teorias da Administração" },
+      { palavra: "Humanística", pista: "Teorias da Administração" },
+      { palavra: "Gestão de Colaboradores", pista: "Gestão Contemporânea" },
+      { palavra: "Gestão Contemporânea", pista: "Gestão Contemporânea" },
+      { palavra: "Gestão Horizontal", pista: "Gestão Contemporânea" },
+      { palavra: "Aspectos de Gestão", pista: "Gestão Contemporânea" },
+      { palavra: "Teorias da Administração", pista: "Teorias da Administração" },
+      { palavra: "Pré Histórico", pista: "Teorias da Administração" },
+      { palavra: "Efeito Hawthorne", pista: "Teorias da Administração" },
+      { palavra: "Relações Humanas", pista: "Teorias da Administração" },
+      { palavra: "Conhecimento Multidisciplinar", pista: "Teorias da Administração" },
+      { palavra: "Max Weber", pista: "Teorias da Administração" },
+      { palavra: "Competência Técnica", pista: "Teorias da Administração" },
+      { palavra: "Promoção e Seleção", pista: "Teorias da Administração" },
+      { palavra: "Direitos e Deveres", pista: "Teorias da Administração" },
+      { palavra: "Linha de Montagem", pista: "Teorias da Administração" },
+      { palavra: "Crescente Divisão", pista: "Teorias da Administração" }
     ];
 
-    let palavraAtual = {};
     let grupos = [];
-    let grupoIndex = 0;
+    let pontuacoes = [];
+    let grupoAtual = 0;
+    let palavraSecreta = "";
+    let letrasReveladas = [];
     let letrasUsadas = [];
-    let palavraOculta = [];
-    let pontosRodada = 0;
+    let valorAtualRoleta = 0;
+
+    const segmentos = [100, 200, 300, 400, 500, 600, 'Passe a vez', 'Perde tudo'];
 
     function iniciarJogo() {
       grupos = [];
       for (let i = 1; i <= 6; i++) {
-        const nome = document.getElementById(`grupo${i}`).value.trim();
-        if (nome) grupos.push({ nome, pontos: 0 });
+        let nome = document.getElementById(`grupo${i}`).value.trim();
+        if (nome) grupos.push(nome);
       }
       if (grupos.length === 0) {
-        alert("Informe ao menos um grupo para jogar.");
+        alert("Insira ao menos um grupo.");
         return;
       }
-
-      grupoIndex = 0;
-      palavraAtual = palavras[Math.floor(Math.random() * palavras.length)];
-      letrasUsadas = [];
-      pontosRodada = 0;
-      palavraOculta = palavraAtual.palavra.split('').map(l => (l === ' ' ? ' ' : '_'));
-
-      document.getElementById('configuracao').style.display = 'none';
-      document.getElementById('jogo').style.display = 'block';
-      document.getElementById('pontos').textContent = 'Pontos: 0';
-      document.getElementById('pista').textContent = `Pista: ${palavraAtual.pista}`;
-      document.getElementById('grupoAtual').textContent = `Grupo da vez: ${grupos[grupoIndex].nome}`;
-
-      exibirPainel();
-      criarBotoesLetras();
+      pontuacoes = Array(grupos.length).fill(0);
+      document.getElementById("configuracao").style.display = "none";
+      document.getElementById("jogo").style.display = "block";
+      grupoAtual = Math.floor(Math.random() * grupos.length);
       atualizarPlacar();
+      atualizarGrupoAtual();
+      escolherPalavra();
+      desenharPainel();
+      desenharRoleta();
     }
 
-    function exibirPainel() {
+    function escolherPalavra() {
+      const index = Math.floor(Math.random() * palavrasEPistas.length);
+      palavraSecreta = palavrasEPistas[index].palavra.toLowerCase();
+      letrasReveladas = Array(palavraSecreta.length).fill(false);
+      document.getElementById("pista").textContent = `Pista: ${palavrasEPistas[index].pista}`;
+    }
+
+    function desenharPainel() {
       const painel = document.getElementById("painel");
-      painel.innerHTML = palavraOculta.map(l => `<span>${l}</span>`).join('');
+      painel.innerHTML = "";
+      for (let i = 0; i < palavraSecreta.length; i++) {
+        const span = document.createElement("span");
+        span.className = "letra";
+        const char = palavraSecreta[i];
+        if (char === " ") {
+          span.textContent = "-";
+        } else {
+          span.textContent = letrasReveladas[i] ? char.toUpperCase() : "";
+        }
+        painel.appendChild(span);
+      }
     }
 
-    function criarBotoesLetras() {
-      const container = document.getElementById("letras");
-      container.innerHTML = '';
-      for (let i = 65; i <= 90; i++) {
-        const letra = String.fromCharCode(i);
-        const btn = document.createElement("button");
-        btn.textContent = letra;
-        btn.onclick = () => verificarLetra(letra);
-        btn.disabled = false;
-        container.appendChild(btn);
+    function atualizarPlacar() {
+      const placar = document.getElementById("placarGrupos");
+      placar.innerHTML = "";
+      grupos.forEach((grupo, index) => {
+        placar.innerHTML += `<div>${grupo}: ${pontuacoes[index]} pontos</div>`;
+      });
+    }
+
+    function atualizarGrupoAtual() {
+      document.getElementById("grupoAtual").textContent = `Vez do grupo: ${grupos[grupoAtual]}`;
+    }
+
+    function desenharRoleta() {
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+      const total = segmentos.length;
+      const angulo = 2 * Math.PI / total;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < total; i++) {
+        ctx.beginPath();
+        ctx.moveTo(150, 150);
+        ctx.fillStyle = i % 2 === 0 ? "#FFD700" : "#FF4500";
+        ctx.arc(150, 150, 150, i * angulo, (i + 1) * angulo);
+        ctx.fill();
+        ctx.fillStyle = "black";
+        ctx.font = "bold 14px sans-serif";
+        ctx.save();
+        ctx.translate(150, 150);
+        ctx.rotate(i * angulo + angulo / 2);
+        ctx.textAlign = "right";
+        ctx.fillText(segmentos[i], 140, 0);
+        ctx.restore();
       }
     }
 
     function girarRoleta() {
       const som = document.getElementById("somRoleta");
       som.play();
-      const valor = Math.floor(Math.random() * 10 + 1) * 100;
-      pontosRodada = valor;
-      document.getElementById("resultadoRoleta").textContent = `Valor da roleta: ${valor}`;
+      const escolhido = Math.floor(Math.random() * segmentos.length);
+      valorAtualRoleta = segmentos[escolhido];
 
-      // Girando a roleta
-      const roleta = document.getElementById("roleta");
-      const roletaDeg = Math.floor(Math.random() * 360);
-      roleta.style.transition = "transform 3s ease-out";
-      roleta.style.transform = `rotate(${roletaDeg + 1800}deg)`; // Gira mais de 5 vezes
+      setTimeout(() => {
+        alert(`Resultado da roleta: ${valorAtualRoleta}`);
+        if (valorAtualRoleta === 'Passe a vez' || valorAtualRoleta === 'Perde tudo') {
+          if (valorAtualRoleta === 'Perde tudo') pontuacoes[grupoAtual] = 0;
+          grupoAtual = (grupoAtual + 1) % grupos.length;
+          atualizarPlacar();
+          atualizarGrupoAtual();
+        }
+      }, 1000);
     }
 
-    function verificarLetra(letra) {
-      if (letrasUsadas.includes(letra)) return;
-      letrasUsadas.push(letra);
+    function adivinharLetra() {
+      const letra = document.getElementById("letra").value.toLowerCase();
+      if (!letra || letrasUsadas.includes(letra)) return;
 
-      let encontrou = false;
-      for (let i = 0; i < palavraAtual.palavra.length; i++) {
-        if (palavraAtual.palavra[i].toUpperCase() === letra) {
-          palavraOculta[i] = palavraAtual.palavra[i];
-          encontrou = true;
+      letrasUsadas.push(letra);
+      document.getElementById("letrasUsadas").textContent = `Letras usadas: ${letrasUsadas.join(", ").toUpperCase()}`;
+      let acertou = false;
+      let pontosGanhos = 0;
+
+      for (let i = 0; i < palavraSecreta.length; i++) {
+        if (palavraSecreta[i] === letra && !letrasReveladas[i]) {
+          letrasReveladas[i] = true;
+          acertou = true;
+          pontosGanhos += typeof valorAtualRoleta === "number" ? valorAtualRoleta : 0;
         }
       }
 
-      if (encontrou) {
-        grupos[grupoIndex].pontos += pontosRodada;
-        document.getElementById('pontos').textContent = `Pontos: ${grupos[grupoIndex].pontos}`;
+      if (acertou) {
+        pontuacoes[grupoAtual] += pontosGanhos;
+        atualizarPlacar();
+        desenharPainel();
       } else {
-        grupoIndex = (grupoIndex + 1) % grupos.length;
-        document.getElementById('grupoAtual').textContent = `Grupo da vez: ${grupos[grupoIndex].nome}`;
+        grupoAtual = (grupoAtual + 1) % grupos.length;
+        atualizarGrupoAtual();
       }
 
-      exibirPainel();
-      atualizarPlacar();
+      document.getElementById("letra").value = "";
     }
 
-    function atualizarPlacar() {
-      const placar = document.getElementById("placarGrupos");
-      placar.innerHTML = grupos.map(g => `<div><strong>${g.nome}:</strong> ${g.pontos} pts</div>`).join('');
+    function adivinharPalavra() {
+      const palpite = document.getElementById("palpite").value.toLowerCase();
+      if (palpite === palavraSecreta) {
+        alert("Parabéns! Palavra correta.");
+        pontuacoes[grupoAtual] += typeof valorAtualRoleta === "number" ? valorAtualRoleta * 3 : 1000;
+        atualizarPlacar();
+        desenharPainel();
+      } else {
+        alert("Palavra incorreta!");
+      }
+      grupoAtual = (grupoAtual + 1) % grupos.length;
+      atualizarGrupoAtual();
+      document.getElementById("palpite").value = "";
     }
   </script>
 </body>
